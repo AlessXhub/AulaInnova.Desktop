@@ -1,0 +1,179 @@
+<UserControl x:Class="AulaInnova.Desktop.Views.RecordsPageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             KeyboardNavigation.TabNavigation="Continue">
+    <Grid>
+        <ScrollViewer Style="{StaticResource ScrollViewerStyle}">
+            <StackPanel Margin="28" MaxWidth="1500" HorizontalAlignment="Stretch">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="{Binding Title}" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="{Binding Description}" Style="{StaticResource BodyText}" Margin="0,6,0,0" MaxWidth="820" HorizontalAlignment="Left" />
+                        <TextBlock Text="{Binding RequirementRefs}" Style="{StaticResource CaptionText}" Margin="0,7,0,0" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="{Binding Definition.CreateLabel}" Command="{Binding OpenCreateCommand}"
+                            Style="{StaticResource PrimaryButton}" VerticalAlignment="Top"
+                            Visibility="{Binding Definition.CanCreate, Converter={StaticResource BoolToVisibility}}" />
+                </Grid>
+
+                <Border Style="{StaticResource Card}" Margin="0,24,0,0" Padding="16">
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="2*" /><ColumnDefinition Width="180" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <Grid Margin="0,0,12,0">
+                            <TextBlock Text="&#xE721;" FontFamily="{DynamicResource IconFontFamily}" Foreground="{DynamicResource TextMutedBrush}" FontSize="15" Margin="12,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" IsHitTestVisible="False" />
+                            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputTextBox}" Padding="36,10,12,10" AutomationProperties.Name="Buscar registros" />
+                        </Grid>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter}" Style="{StaticResource InputComboBox}" Margin="0,0,12,0" AutomationProperties.Name="Filtrar por estado" />
+                        <Button Grid.Column="2" Content="Actualizar" Command="{Binding RefreshCommand}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0" />
+                        <Button Grid.Column="3" Content="Simular fallo" Command="{Binding SimulateErrorCommand}" Style="{StaticResource TextButton}" ToolTip="Comprueba el estado de error y recuperación del frontend" />
+                    </Grid>
+                </Border>
+
+                <Border Background="{DynamicResource SuccessSoftBrush}" CornerRadius="10" Padding="13" Margin="0,14,0,0"
+                        Visibility="{Binding FeedbackMessage, Converter={StaticResource StringToVisibility}}">
+                    <TextBlock Text="{Binding FeedbackMessage}" Foreground="{DynamicResource SuccessBrush}" FontSize="13" />
+                </Border>
+
+                <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="0" MinHeight="390">
+                    <Grid>
+                        <StackPanel Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" Margin="20">
+                            <TextBlock Text="Cargando información..." FontWeight="Bold" Margin="0,0,0,16" />
+                            <Border Height="48" Background="{DynamicResource SurfaceMutedBrush}" CornerRadius="8" Margin="0,0,0,9" />
+                            <Border Height="48" Background="{DynamicResource SurfaceMutedBrush}" CornerRadius="8" Margin="0,0,0,9" Opacity="0.82" />
+                            <Border Height="48" Background="{DynamicResource SurfaceMutedBrush}" CornerRadius="8" Margin="0,0,0,9" Opacity="0.64" />
+                            <Border Height="48" Background="{DynamicResource SurfaceMutedBrush}" CornerRadius="8" Opacity="0.48" />
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
+                            <Border Width="52" Height="52" Background="{DynamicResource DangerSoftBrush}" CornerRadius="14" HorizontalAlignment="Center">
+                                <TextBlock Text="&#xEA39;" FontFamily="{DynamicResource IconFontFamily}" Foreground="{DynamicResource DangerBrush}" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="No se pudo cargar la información" FontWeight="ExtraBold" FontSize="18" HorizontalAlignment="Center" Margin="0,16,0,6" />
+                            <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource BodyText}" TextAlignment="Center" />
+                            <Button Content="Volver a intentar" Command="{Binding RefreshCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Center" Margin="0,18,0,0" />
+                        </StackPanel>
+
+                        <Grid Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibility}}">
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <Grid MinWidth="820">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="2*" /><ColumnDefinition Width="1.5*" /><ColumnDefinition Width="1.7*" /><ColumnDefinition Width="1.1*" /><ColumnDefinition Width="90" /></Grid.ColumnDefinitions>
+                                    <Button Content="{Binding Definition.PrimaryHeader}" Command="{Binding SortCommand}" CommandParameter="Primary" Style="{StaticResource TextButton}" HorizontalContentAlignment="Left" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <Button Grid.Column="1" Content="{Binding Definition.SecondaryHeader}" Command="{Binding SortCommand}" CommandParameter="Secondary" Style="{StaticResource TextButton}" HorizontalContentAlignment="Left" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Definition.TertiaryHeader}" Style="{StaticResource TableHeaderText}" Margin="8,0" VerticalAlignment="Center" />
+                                    <Button Grid.Column="3" Content="{Binding Definition.StatusHeader}" Command="{Binding SortCommand}" CommandParameter="Status" Style="{StaticResource TextButton}" HorizontalContentAlignment="Left" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Grid.Column="4" Text="Acciones" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center" />
+                                </Grid>
+                            </ScrollViewer>
+
+                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                <Grid MinWidth="820">
+                                    <ItemsControl ItemsSource="{Binding Records}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="8,12">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions><ColumnDefinition Width="2*" /><ColumnDefinition Width="1.5*" /><ColumnDefinition Width="1.7*" /><ColumnDefinition Width="1.1*" /><ColumnDefinition Width="90" /></Grid.ColumnDefinitions>
+                                                        <TextBlock Text="{Binding Primary}" FontWeight="Bold" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Primary}" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding Secondary}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="8,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding Secondary}" />
+                                                        <TextBlock Grid.Column="2" Text="{Binding Tertiary}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="8,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding Tertiary}" />
+                                                        <Border Grid.Column="3" Style="{StaticResource StatusBadge}" Background="{Binding Status, Converter={StaticResource StatusBrushConverter}}" Margin="8,0">
+                                                            <TextBlock Text="{Binding Status}" Foreground="White" FontSize="10" FontWeight="Bold" TextWrapping="NoWrap" />
+                                                        </Border>
+                                                        <StackPanel Grid.Column="4" Orientation="Horizontal">
+                                                            <Button Content="&#xE890;" Command="{Binding DataContext.OpenDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource IconButton}" Width="36" Height="36" MinHeight="36" ToolTip="Ver detalle" AutomationProperties.Name="Ver detalle" />
+                                                            <Button Content="&#xE70F;" Command="{Binding DataContext.OpenEditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource IconButton}" Width="36" Height="36" MinHeight="36" Margin="6,0,0,0" ToolTip="Editar" AutomationProperties.Name="Editar registro"
+                                                                    Visibility="{Binding DataContext.Definition.CanCreate, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}" />
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <StackPanel Visibility="{Binding HasRecords, Converter={StaticResource InverseBoolToVisibility}}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,90">
+                                        <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource BrandSoftBrush}" HorizontalAlignment="Center">
+                                            <TextBlock Text="&#xE721;" FontFamily="{DynamicResource IconFontFamily}" Foreground="{DynamicResource BrandBrush}" FontSize="21" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <TextBlock Text="Sin resultados" FontWeight="ExtraBold" FontSize="17" HorizontalAlignment="Center" Margin="0,14,0,5" />
+                                        <TextBlock Text="{Binding Definition.EmptyMessage}" Style="{StaticResource BodyText}" TextAlignment="Center" />
+                                    </StackPanel>
+                                </Grid>
+                            </ScrollViewer>
+
+                            <Grid Grid.Row="2" Margin="16,10,16,16">
+                                <TextBlock Text="{Binding ResultCount, StringFormat={}{0} resultados}" Style="{StaticResource CaptionText}" VerticalAlignment="Center" />
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="Anterior" Command="{Binding PreviousPageCommand}" Style="{StaticResource SecondaryButton}" />
+                                    <TextBlock Text="{Binding PageLabel}" Style="{StaticResource CaptionText}" Margin="14,0" VerticalAlignment="Center" />
+                                    <Button Content="Siguiente" Command="{Binding NextPageCommand}" Style="{StaticResource SecondaryButton}" />
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Grid Background="#7A111827" Visibility="{Binding IsEditorOpen, Converter={StaticResource BoolToVisibility}}" Panel.ZIndex="10">
+            <Border Style="{StaticResource Card}" Width="560" Padding="28" HorizontalAlignment="Center" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="Cycle" Effect="{StaticResource SoftShadow}">
+                <StackPanel>
+                    <Grid>
+                        <TextBlock Text="{Binding EditorTitle}" Style="{StaticResource SectionTitle}" FontSize="21" />
+                        <Button Content="&#xE711;" Command="{Binding CloseEditorCommand}" Style="{StaticResource IconButton}" HorizontalAlignment="Right" AutomationProperties.Name="Cerrar formulario" />
+                    </Grid>
+                    <TextBlock Text="Los cambios se validan y guardan en la API central con trazabilidad." Style="{StaticResource CaptionText}" Margin="0,7,0,20" />
+                    <ItemsControl ItemsSource="{Binding EditorFields}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,15">
+                                    <TextBlock Text="{Binding Label}" FontSize="12" FontWeight="Bold" Margin="0,0,0,6" />
+                                    <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding IsReadOnly}" Style="{StaticResource InputTextBox}" AutomationProperties.Name="{Binding Label}" />
+                                    <TextBlock Text="{Binding Hint}" Style="{StaticResource CaptionText}" Margin="0,4,0,0" Visibility="{Binding Error, Converter={StaticResource InverseStringToVisibility}}" />
+                                    <TextBlock Text="{Binding Error}" Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,4,0,0" Visibility="{Binding Error, Converter={StaticResource StringToVisibility}}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{Binding FeedbackMessage}" Foreground="{DynamicResource DangerBrush}" FontSize="12" Margin="0,0,0,12" Visibility="{Binding FeedbackMessage, Converter={StaticResource StringToVisibility}}" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancelar" Command="{Binding CloseEditorCommand}" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" />
+                        <Button Content="Guardar" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButton}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Background="#7A111827" Visibility="{Binding IsDetailsOpen, Converter={StaticResource BoolToVisibility}}" Panel.ZIndex="11">
+            <Border Style="{StaticResource Card}" Width="600" Padding="28" HorizontalAlignment="Center" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="Cycle" Effect="{StaticResource SoftShadow}">
+                <StackPanel>
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="Detalle del registro" Style="{StaticResource SectionTitle}" FontSize="21" />
+                            <TextBlock Text="{Binding SelectedRecord.Primary}" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource BrandBrush}" Margin="0,5,0,0" />
+                        </StackPanel>
+                        <Button Content="&#xE711;" Command="{Binding CloseDetailsCommand}" Style="{StaticResource IconButton}" HorizontalAlignment="Right" AutomationProperties.Name="Cerrar detalle" />
+                    </Grid>
+                    <Border Background="{DynamicResource SurfaceMutedBrush}" CornerRadius="11" Padding="18" Margin="0,22,0,18">
+                        <StackPanel>
+                            <TextBlock Text="{Binding SelectedRecord.Secondary}" FontWeight="Bold" />
+                            <TextBlock Text="{Binding SelectedRecord.Tertiary}" Style="{StaticResource BodyText}" Margin="0,8,0,0" />
+                            <Border Style="{StaticResource StatusBadge}" Background="{Binding SelectedRecord.Status, Converter={StaticResource StatusBrushConverter}}" Margin="0,14,0,0">
+                                <TextBlock Text="{Binding SelectedRecord.Status}" Foreground="White" FontSize="10" FontWeight="Bold" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                    <TextBlock Text="Contexto y trazabilidad" FontWeight="Bold" FontSize="12" />
+                    <TextBlock Text="{Binding SelectedRecord.Id, StringFormat=ID de API: {0}}" Style="{StaticResource CaptionText}" Margin="0,7,0,0" />
+                    <TextBlock Text="{Binding SelectedRecord.Detail}" Style="{StaticResource BodyText}" Margin="0,7,0,0" />
+                    <TextBlock Text="{Binding SelectedRecord.UpdatedAt, StringFormat=Última actualización: {0:dd/MM/yyyy HH:mm}}" Style="{StaticResource CaptionText}" Margin="0,10,0,0" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
+                        <Button Content="Deshabilitar o anular" Command="{Binding DeactivateCommand}" Style="{StaticResource DangerButton}" Margin="0,0,10,0" Visibility="{Binding Definition.CanCreate, Converter={StaticResource BoolToVisibility}}" />
+                        <Button Content="Cerrar" Command="{Binding CloseDetailsCommand}" Style="{StaticResource SecondaryButton}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
